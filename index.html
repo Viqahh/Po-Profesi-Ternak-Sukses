@@ -1,0 +1,1453 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profesi Ternak Sukses</title>
+  <style>
+    :root {
+      --ink: #18212f;
+      --muted: #637083;
+      --line: #d8dee8;
+      --panel: #ffffff;
+      --wash: #f4f7fb;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --danger: #b42318;
+      --focus: #2563eb;
+      --shadow: 0 18px 48px rgba(24, 33, 47, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        linear-gradient(180deg, rgba(15, 118, 110, 0.08), transparent 340px),
+        var(--wash);
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .shell {
+      width: min(1280px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), #1d4ed8);
+      box-shadow: 0 10px 28px rgba(15, 118, 110, 0.28);
+      flex: 0 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(20px, 3vw, 30px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 40px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--ink);
+      box-shadow: 0 8px 18px rgba(24, 33, 47, 0.14);
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+      white-space: nowrap;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(24, 33, 47, 0.18);
+    }
+
+    .button.primary {
+      background: var(--accent);
+    }
+
+    .button.secondary {
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    .button.compact {
+      min-height: 34px;
+      padding: 7px 10px;
+      font-size: 13px;
+    }
+
+    .button.warn {
+      background: var(--accent-2);
+    }
+
+    .button.info {
+      background: #1d4ed8;
+    }
+
+    .button.danger {
+      color: var(--danger);
+      background: #fff;
+      border: 1px solid #f0b8b2;
+      box-shadow: none;
+    }
+
+    .icon {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 auto;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 0.78fr) minmax(480px, 1.22fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      color: #354154;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 10px 11px;
+      outline: none;
+      transition: border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.13);
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+
+    .signature-box {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .signature-canvas {
+      display: block;
+      width: 100%;
+      height: 150px;
+      cursor: crosshair;
+      touch-action: none;
+      background:
+        linear-gradient(#fff, #fff) padding-box,
+        repeating-linear-gradient(0deg, transparent, transparent 35px, rgba(216, 222, 232, 0.55) 36px);
+    }
+
+    .signature-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 10px;
+      border-top: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    .signature-foot span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .item-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--line);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #334155;
+      font-size: 12px;
+      text-transform: uppercase;
+      background: #f7f9fc;
+      letter-spacing: 0.04em;
+    }
+
+    .items-table th:nth-child(1),
+    .items-table td:nth-child(1),
+    .preview-table th:nth-child(1),
+    .preview-table td:nth-child(1) {
+      width: 58px;
+      text-align: center;
+    }
+
+    .items-table th:nth-child(3),
+    .items-table td:nth-child(3) {
+      width: 110px;
+    }
+
+    .items-table th:nth-child(4),
+    .items-table td:nth-child(4) {
+      width: 210px;
+    }
+
+    .items-table th:nth-child(6),
+    .items-table td:nth-child(6) {
+      width: 72px;
+      text-align: center;
+    }
+
+    .items-table input,
+    .items-table select {
+      min-width: 0;
+      padding: 8px 9px;
+    }
+
+    .satuan-group {
+      display: grid;
+      grid-template-columns: minmax(70px, 0.72fr) minmax(92px, 1fr);
+      gap: 7px;
+      min-width: 170px;
+    }
+
+    .mini-button {
+      display: inline-grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 8px;
+      color: var(--danger);
+      background: #fff4f2;
+      border: 1px solid #ffd5cf;
+    }
+
+    .preview {
+      grid-column: 1 / -1;
+    }
+
+    .meta-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .meta-cell {
+      min-height: 66px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .meta-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .meta-value {
+      display: block;
+      margin-top: 5px;
+      overflow-wrap: anywhere;
+      font-weight: 700;
+    }
+
+    .status {
+      min-height: 20px;
+      margin: 12px 16px 0;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .item-note {
+      margin: 11px 16px 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .empty {
+      padding: 18px;
+      color: var(--muted);
+      text-align: center;
+      background: #fff;
+    }
+
+    .footer-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .help {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 980px) {
+      .topbar,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .actions {
+        justify-content: flex-start;
+      }
+
+      .layout {
+        display: grid;
+      }
+
+      .meta-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 20px, 1280px);
+        padding-top: 14px;
+      }
+
+      .form-grid,
+      .meta-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .actions,
+      .item-tools {
+        width: 100%;
+      }
+
+      .item-tools .button {
+        flex: 1 1 160px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">PO</div>
+        <div>
+          <h1>Profesi Ternak Sukses</h1>
+        </div>
+      </div>
+      <div class="actions" aria-label="Aksi utama">
+        <button class="button primary" id="submitBtn" type="button" title="Submit, download PDF, dan kirim ke Google Sheets">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
+          Submit
+        </button>
+      </div>
+    </header>
+
+    <section class="layout">
+      <section class="panel" aria-labelledby="poTitle">
+        <div class="panel-header">
+          <h2 id="poTitle">Data PO dan Peternak</h2>
+        </div>
+        <div class="panel-body">
+          <form class="form-grid" id="poForm">
+            <div class="field">
+              <label for="unit">Unit / Daerah</label>
+              <select id="unit" name="unit" autocomplete="organization">
+                <option value="">Pilih daerah</option>
+                <option value="Sengkang">Sengkang</option>
+                <option value="Maros">Maros</option>
+                <option value="Takalar">Takalar</option>
+                <option value="Kendari">Kendari</option>
+                <option value="Masamba">Masamba</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="kodeUnit">Kode Unit</label>
+              <input id="kodeUnit" name="kodeUnit" placeholder="Auto singkatan daerah" readonly>
+            </div>
+            <div class="field full">
+              <label for="namaPeternak">Nama Peternak</label>
+              <input id="namaPeternak" name="namaPeternak" placeholder="Nama peternak">
+            </div>
+            <div class="field">
+              <label for="populasi">Populasi</label>
+              <input id="populasi" name="populasi" inputmode="numeric" placeholder="Contoh: 5000">
+            </div>
+            <div class="field">
+              <label for="tglCheckIn">Tgl Check In</label>
+              <input id="tglCheckIn" name="tglCheckIn" type="date">
+            </div>
+            <div class="field">
+              <label for="noPo">No PO</label>
+              <input id="noPo" name="noPo" placeholder="Auto setelah daerah dipilih" readonly>
+            </div>
+            <div class="field">
+              <label for="tglPo">Tgl PO</label>
+              <input id="tglPo" name="tglPo" type="date">
+            </div>
+            <div class="field full">
+              <label for="alamatPeternak">Alamat Peternak</label>
+              <textarea id="alamatPeternak" name="alamatPeternak" placeholder="Alamat lengkap peternak"></textarea>
+            </div>
+            <div class="field full">
+              <label for="namaPpl">Nama Petugas Penyuluh Lapangan</label>
+              <input id="namaPpl" name="namaPpl" placeholder="Nama PPL untuk tanda tangan PDF">
+            </div>
+            <div class="field full">
+              <label for="pplSignature">Tanda Tangan PPL</label>
+              <div class="signature-box">
+                <canvas id="pplSignature" class="signature-canvas" width="640" height="180" aria-label="Kotak tanda tangan PPL"></canvas>
+                <div class="signature-foot">
+                  <span>Online sign ini hanya untuk PPL dan akan muncul di PDF.</span>
+                  <button class="button secondary compact" id="clearSignatureBtn" type="button">Hapus Sign</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="barangTitle">
+        <div class="panel-header">
+          <h2 id="barangTitle">Barang</h2>
+          <div class="item-tools">
+            <button class="button secondary" id="sampleBtn" type="button" title="Isi contoh baris barang">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+              Contoh
+            </button>
+            <button class="button primary" id="addRowBtn" type="button" title="Tambah barang">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+              Barang
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="items-table" aria-label="Input barang">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama Barang</th>
+                <th>Qty</th>
+                <th>Satuan</th>
+                <th>Suplier</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="itemsBody"></tbody>
+          </table>
+        </div>
+        <p class="item-note">Baris barang yang kosong tidak akan masuk ke Sheets. Kalau ada baris yang sudah diisi tapi belum lengkap, submit akan ditahan sampai nama barang, qty, satuan, dan suplier lengkap.</p>
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="panel preview" aria-labelledby="previewTitle">
+        <div class="panel-header">
+          <h2 id="previewTitle">Preview Output Sheet</h2>
+          <span class="subtitle" id="rowCount">0 baris barang</span>
+        </div>
+        <div class="meta-strip" id="metaPreview"></div>
+        <div class="table-wrap" id="previewWrap"></div>
+      </section>
+    </section>
+
+    <p class="footer-note">Catatan: Submit akan download PDF lalu mengirim data ke Apps Script master sheet sesuai daerah/unit, lengkap dengan status download dan timestamp.</p>
+  </main>
+
+  <template id="itemTemplate">
+    <tr>
+      <td class="row-number"></td>
+      <td><input data-field="namaBarang" placeholder="Nama barang"></td>
+      <td><input data-field="qty" inputmode="decimal" placeholder="0"></td>
+      <td>
+        <div class="satuan-group">
+          <input data-field="satuanJumlah" inputmode="decimal" placeholder="800">
+          <select data-field="satuanUnit">
+            <option value="">Pilih</option>
+            <option value="GR">GR</option>
+            <option value="ML">ML</option>
+            <option value="L">L</option>
+            <option value="BOTOL">BOTOL</option>
+            <option value="BUNGKUS">BUNGKUS</option>
+          </select>
+        </div>
+      </td>
+      <td><input data-field="supplier" placeholder="Nama suplier"></td>
+      <td>
+        <button class="mini-button" type="button" title="Hapus baris">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18"></path><path d="M6 6l12 12"></path></svg>
+        </button>
+      </td>
+    </tr>
+  </template>
+
+  <script>
+    const appsScriptUrl = "https://script.google.com/macros/s/AKfycbx-C_OEdjfHfFf3e_2MkmVvzD5sy_hXZW-6vv2gfAX6STWtgqXWSqNyeC3p4R19XaVH/exec";
+    const formFields = ["unit", "kodeUnit", "namaPeternak", "populasi", "alamatPeternak", "tglCheckIn", "noPo", "tglPo", "namaPpl"];
+    const stateKey = "po-sheet-generator-v4";
+    const adminName = "Ananda Thufail";
+    const adminSignatureJpeg = {
+      width: 320,
+      height: 215,
+      base64: "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"
+    };
+    const regionCodes = {
+      Sengkang: "SKG",
+      Maros: "MRS",
+      Takalar: "TKL",
+      Kendari: "KDI",
+      Masamba: "MSB"
+    };
+
+    const itemsBody = document.querySelector("#itemsBody");
+    const itemTemplate = document.querySelector("#itemTemplate");
+    const statusEl = document.querySelector("#status");
+    const rowCountEl = document.querySelector("#rowCount");
+    const metaPreview = document.querySelector("#metaPreview");
+    const previewWrap = document.querySelector("#previewWrap");
+    const signatureCanvas = document.querySelector("#pplSignature");
+    const signatureCtx = signatureCanvas.getContext("2d");
+    let signaturePaths = [];
+    let activeSignaturePath = null;
+
+    const labels = {
+      unit: "Unit / Daerah",
+      kodeUnit: "Kode Unit",
+      namaPeternak: "Nama Peternak",
+      populasi: "Populasi",
+      alamatPeternak: "Alamat Peternak",
+      tglCheckIn: "Tgl Check In",
+      noPo: "No PO",
+      tglPo: "Tgl PO",
+      namaPpl: "Nama PPL"
+    };
+
+    function formatDate(value) {
+      if (!value) return "";
+      const [year, month, day] = value.split("-");
+      if (!year || !month || !day) return value;
+      return `${day}/${month}/${year}`;
+    }
+
+    function slug(value) {
+      return String(value || "po")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "po";
+    }
+
+    function currentDateCode() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      return `${year}${month}${day}`;
+    }
+
+    function currentDateInputValue() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function dateCodeFromInput(value) {
+      if (!value) return currentDateCode();
+      return value.replace(/-/g, "");
+    }
+
+    function currentTimeCode() {
+      const now = new Date();
+      const hour = String(now.getHours()).padStart(2, "0");
+      const minute = String(now.getMinutes()).padStart(2, "0");
+      const second = String(now.getSeconds()).padStart(2, "0");
+      return `${hour}${minute}${second}`;
+    }
+
+    function formatTimestamp(date = new Date()) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const hour = String(date.getHours()).padStart(2, "0");
+      const minute = String(date.getMinutes()).padStart(2, "0");
+      const second = String(date.getSeconds()).padStart(2, "0");
+      return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+    }
+
+    function generateKodeUnit(region) {
+      if (!region) return "";
+      return regionCodes[region] || region.slice(0, 3).toUpperCase();
+    }
+
+    function generateNoPo(kodeUnit) {
+      if (!kodeUnit) return "";
+      const tglPo = document.querySelector("#tglPo");
+      if (!tglPo.value) tglPo.value = currentDateInputValue();
+      return `PO-${kodeUnit}-${dateCodeFromInput(tglPo.value)}-${currentTimeCode()}`;
+    }
+
+    function syncGeneratedIds(forceNoPo = false) {
+      const unit = document.querySelector("#unit").value;
+      const kodeUnit = generateKodeUnit(unit);
+      const kodeUnitInput = document.querySelector("#kodeUnit");
+      const noPoInput = document.querySelector("#noPo");
+      kodeUnitInput.value = kodeUnit;
+      if (forceNoPo || !noPoInput.value || !noPoInput.value.startsWith(`PO-${kodeUnit}-`)) {
+        noPoInput.value = generateNoPo(kodeUnit);
+      }
+    }
+
+    function getFormData() {
+      return Object.fromEntries(formFields.map((field) => {
+        const element = document.querySelector(`#${field}`);
+        const value = element.type === "date" ? formatDate(element.value) : element.value.trim();
+        return [field, value];
+      }));
+    }
+
+    function getRawFormData() {
+      return Object.fromEntries(formFields.map((field) => {
+        const element = document.querySelector(`#${field}`);
+        return [field, element.value];
+      }));
+    }
+
+    function splitSatuan(value = "") {
+      const text = String(value || "").trim();
+      if (!text) return { jumlah: "", unit: "" };
+      const match = text.match(/^(.+?)\s+([A-Za-z]+)$/);
+      if (!match) return { jumlah: text, unit: "" };
+      return {
+        jumlah: match[1].trim(),
+        unit: match[2].trim().toUpperCase()
+      };
+    }
+
+    function signaturePoint(event) {
+      const rect = signatureCanvas.getBoundingClientRect();
+      return {
+        x: Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)),
+        y: Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height))
+      };
+    }
+
+    function drawSignature() {
+      signatureCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+      signatureCtx.lineCap = "round";
+      signatureCtx.lineJoin = "round";
+      signatureCtx.strokeStyle = "#111827";
+      signatureCtx.lineWidth = 3;
+
+      signaturePaths.forEach((path) => {
+        if (!path.length) return;
+        signatureCtx.beginPath();
+        signatureCtx.moveTo(path[0].x * signatureCanvas.width, path[0].y * signatureCanvas.height);
+        path.slice(1).forEach((point) => {
+          signatureCtx.lineTo(point.x * signatureCanvas.width, point.y * signatureCanvas.height);
+        });
+        if (path.length === 1) {
+          signatureCtx.lineTo((path[0].x * signatureCanvas.width) + 0.1, path[0].y * signatureCanvas.height);
+        }
+        signatureCtx.stroke();
+      });
+    }
+
+    function hasPplSignature() {
+      return signaturePaths.some((path) => path.length);
+    }
+
+    function signatureSnapshot() {
+      return {
+        hasSignature: hasPplSignature(),
+        paths: signaturePaths.map((path) => path.map((point) => [
+          Number(point.x.toFixed(4)),
+          Number(point.y.toFixed(4))
+        ]))
+      };
+    }
+
+    function restoreSignature(snapshot = {}) {
+      signaturePaths = Array.isArray(snapshot.paths)
+        ? snapshot.paths.map((path) => path.map((point) => ({
+          x: Array.isArray(point) ? Number(point[0]) : Number(point.x),
+          y: Array.isArray(point) ? Number(point[1]) : Number(point.y)
+        })).filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y)))
+        : [];
+      drawSignature();
+    }
+
+    function startSignature(event) {
+      event.preventDefault();
+      signatureCanvas.setPointerCapture(event.pointerId);
+      activeSignaturePath = [signaturePoint(event)];
+      signaturePaths.push(activeSignaturePath);
+      drawSignature();
+    }
+
+    function moveSignature(event) {
+      if (!activeSignaturePath) return;
+      event.preventDefault();
+      activeSignaturePath.push(signaturePoint(event));
+      drawSignature();
+    }
+
+    function endSignature() {
+      if (!activeSignaturePath) return;
+      activeSignaturePath = null;
+      saveState();
+    }
+
+    function clearSignature() {
+      signaturePaths = [];
+      activeSignaturePath = null;
+      drawSignature();
+      saveState();
+      showStatus("Tanda tangan PPL sudah dihapus.");
+    }
+
+    function buildSatuan(row) {
+      const jumlah = row.querySelector('[data-field="satuanJumlah"]')?.value.trim() || "";
+      const unit = row.querySelector('[data-field="satuanUnit"]')?.value.trim() || "";
+      return [jumlah, unit].filter(Boolean).join(" ");
+    }
+
+    function readItemRow(row, index) {
+      const read = (field) => row.querySelector(`[data-field="${field}"]`)?.value.trim() || "";
+      const satuanJumlah = read("satuanJumlah");
+      const satuanUnit = read("satuanUnit");
+      return {
+        no: index + 1,
+        namaBarang: read("namaBarang"),
+        qty: read("qty"),
+        satuanJumlah,
+        satuanUnit,
+        satuan: [satuanJumlah, satuanUnit].filter(Boolean).join(" "),
+        supplier: read("supplier")
+      };
+    }
+
+    function hasItemContent(item) {
+      return Boolean(item.namaBarang || item.qty || item.satuanJumlah || item.satuanUnit);
+    }
+
+    function firstSupplierValue() {
+      return itemsBody.querySelector("tr:first-child [data-field='supplier']")?.value.trim() || "";
+    }
+
+    function syncSupplierFromFirst(force = false) {
+      const rows = [...itemsBody.querySelectorAll("tr")];
+      const supplier = firstSupplierValue();
+      rows.slice(1).forEach((row) => {
+        const input = row.querySelector('[data-field="supplier"]');
+        if (!input) return;
+        if (force || input.dataset.autoSupplier !== "false") {
+          input.value = supplier;
+          input.dataset.autoSupplier = "true";
+        }
+      });
+    }
+
+    function getItems() {
+      return [...itemsBody.querySelectorAll("tr")]
+        .map(readItemRow)
+        .filter(hasItemContent);
+    }
+
+    function addRow(item = {}) {
+      const row = itemTemplate.content.firstElementChild.cloneNode(true);
+      const satuan = splitSatuan(item.satuan);
+      row.querySelector('[data-field="namaBarang"]').value = item.namaBarang || "";
+      row.querySelector('[data-field="qty"]').value = item.qty || "";
+      row.querySelector('[data-field="satuanJumlah"]').value = item.satuanJumlah || satuan.jumlah || "";
+      row.querySelector('[data-field="satuanUnit"]').value = item.satuanUnit || satuan.unit || "";
+      const supplierInput = row.querySelector('[data-field="supplier"]');
+      const isFirstRow = itemsBody.children.length === 0;
+      supplierInput.value = item.supplier || (isFirstRow ? "" : firstSupplierValue());
+      supplierInput.dataset.autoSupplier = isFirstRow || item.supplier ? "false" : "true";
+      row.querySelector(".mini-button").addEventListener("click", () => {
+        row.remove();
+        if (!itemsBody.children.length) addRow();
+        syncSupplierFromFirst(false);
+        refresh();
+      });
+      row.querySelectorAll("input, select").forEach((field) => {
+        field.addEventListener("input", () => {
+          if (field.dataset.field === "supplier") {
+            if (row === itemsBody.querySelector("tr:first-child")) {
+              syncSupplierFromFirst(true);
+            } else {
+              field.dataset.autoSupplier = "false";
+            }
+          }
+          refresh();
+        });
+        field.addEventListener("change", refresh);
+      });
+      itemsBody.appendChild(row);
+      syncSupplierFromFirst(false);
+      refresh();
+    }
+
+    function renumberRows() {
+      [...itemsBody.querySelectorAll("tr")].forEach((row, index) => {
+        row.querySelector(".row-number").textContent = index + 1;
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function renderMeta(data) {
+      const order = ["unit", "kodeUnit", "namaPeternak", "populasi", "alamatPeternak", "tglCheckIn", "noPo", "tglPo", "namaPpl"];
+      metaPreview.innerHTML = order.map((key) => `
+        <div class="meta-cell">
+          <span class="meta-label">${labels[key]}</span>
+          <span class="meta-value">${escapeHtml(data[key] || "-")}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderPreview(items) {
+      rowCountEl.textContent = `${items.length} baris barang`;
+      if (!items.length) {
+        previewWrap.innerHTML = '<div class="empty">Belum ada barang yang siap dibuat sheet.</div>';
+        return;
+      }
+      previewWrap.innerHTML = `
+        <table class="preview-table" aria-label="Preview output">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Barang</th>
+              <th>Qty</th>
+              <th>Satuan</th>
+              <th>Suplier</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map((item) => `
+              <tr>
+                <td>${item.no}</td>
+                <td>${escapeHtml(item.namaBarang)}</td>
+                <td>${escapeHtml(item.qty)}</td>
+                <td>${escapeHtml(item.satuan)}</td>
+                <td>${escapeHtml(item.supplier)}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function sheetRows(meta = {}) {
+      const data = getFormData();
+      const items = getItems();
+      const submitTimestamp = meta.submitTimestamp || "";
+      const downloadTimestamp = meta.downloadTimestamp || "";
+      const downloadStatus = meta.pdfDownloaded ? true : "Belum";
+      return [
+        ["Unit / Daerah", data.unit],
+        ["Kode Unit", data.kodeUnit],
+        ["Nama Peternak", data.namaPeternak],
+        ["Populasi", data.populasi],
+        ["Alamat Peternak", data.alamatPeternak],
+        ["Tgl Check In", data.tglCheckIn],
+        ["No PO", data.noPo],
+        ["Tgl PO", data.tglPo],
+        ["Nama PPL", data.namaPpl],
+        ["Admin", adminName],
+        ["Timestamp Submit", submitTimestamp],
+        ["Download PDF", downloadStatus],
+        ["Timestamp Download PDF", downloadTimestamp || "Belum"],
+        [],
+        ["No", "Nama Barang", "Qty", "Satuan", "Suplier"],
+        ...items.map((item) => [item.no, item.namaBarang, item.qty, item.satuan, item.supplier])
+      ];
+    }
+
+    function buildPayload(meta = {}) {
+      const form = getFormData();
+      const items = getItems();
+      const submitTimestamp = meta.submitTimestamp || formatTimestamp();
+      const downloadTimestamp = meta.downloadTimestamp || "";
+      const pdfDownloaded = Boolean(meta.pdfDownloaded);
+      return {
+        action: "create_po",
+        targetSheet: form.unit,
+        daerah: form.unit,
+        unit: form.unit,
+        kodeUnit: form.kodeUnit,
+        admin: adminName,
+        form,
+        items,
+        rows: sheetRows({ submitTimestamp, downloadTimestamp, pdfDownloaded }),
+        pplSignature: signatureSnapshot(),
+        pdfDownloaded,
+        downloadStatus: pdfDownloaded ? "Sudah" : "Belum",
+        submitTimestamp,
+        downloadTimestamp: downloadTimestamp || "Belum",
+        createdAt: new Date().toISOString()
+      };
+    }
+
+    function toTsv(rows) {
+      return rows.map((row) => row.map((value) => String(value ?? "").replace(/\t/g, " ").replace(/\r?\n/g, " ")).join("\t")).join("\n");
+    }
+
+    function toCsv(rows) {
+      return rows.map((row) => row.map((value) => {
+        const text = String(value ?? "");
+        return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+      }).join(",")).join("\r\n");
+    }
+
+    function downloadBlob(blob, filename) {
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function downloadCsv() {
+      const rows = sheetRows();
+      const data = getFormData();
+      const filenameBase = slug(data.noPo || data.namaPeternak || data.unit || "po-google-sheets");
+      const blob = new Blob(["\ufeff", toCsv(rows)], { type: "text/csv;charset=utf-8" });
+      downloadBlob(blob, `${filenameBase}.csv`);
+      showStatus("CSV siap di-download.");
+    }
+
+    async function copySheet() {
+      const text = toTsv(sheetRows());
+      try {
+        await navigator.clipboard.writeText(text);
+        showStatus("Data sudah dicopy. Buka Google Sheets lalu paste.");
+      } catch (error) {
+        const area = document.createElement("textarea");
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+        showStatus("Data sudah dicopy. Buka Google Sheets lalu paste.");
+      }
+    }
+
+    function validateBeforeSubmit() {
+      const data = getFormData();
+      const items = getItems();
+      if (!data.unit) return "Pilih unit/daerah dulu sebelum submit.";
+      if (!data.namaPeternak) return "Isi nama peternak dulu sebelum submit.";
+      if (!data.noPo) return "Isi no PO dulu sebelum submit.";
+      if (!data.namaPpl) return "Isi nama PPL dulu sebelum submit.";
+      if (!items.length) return "Isi minimal 1 barang dulu sebelum submit.";
+
+      const rows = [...itemsBody.querySelectorAll("tr")].map(readItemRow);
+      const incomplete = rows.find((item) => {
+        if (!hasItemContent(item)) return false;
+        return !item.namaBarang || !item.qty || !item.satuanJumlah || !item.satuanUnit || !item.supplier;
+      });
+
+      if (incomplete) {
+        return `Lengkapi barang baris ${incomplete.no}: nama barang, qty, satuan, dan suplier wajib diisi.`;
+      }
+
+      return "";
+    }
+
+    async function sendToSheets(payload) {
+      if (!payload.form.unit) {
+        showStatus("Pilih unit/daerah dulu sebelum kirim ke Sheets.");
+        return false;
+      }
+      if (!payload.items.length) {
+        showStatus("Isi minimal 1 barang dulu sebelum kirim ke Sheets.");
+        return false;
+      }
+      try {
+        await fetch(appsScriptUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        showStatus(`Data dikirim ke master Sheets untuk ${payload.form.unit}.`);
+        return true;
+      } catch (error) {
+        showStatus("Gagal kirim ke Sheets. Cek koneksi atau setting Apps Script.");
+        return false;
+      }
+    }
+
+    function pdfEscape(value) {
+      return String(value ?? "")
+        .normalize("NFKD")
+        .replace(/[^\x20-\x7E]/g, "")
+        .replace(/\\/g, "\\\\")
+        .replace(/\(/g, "\\(")
+        .replace(/\)/g, "\\)");
+    }
+
+    function base64ToHex(value) {
+      const bytes = atob(value);
+      let hex = "";
+      for (let index = 0; index < bytes.length; index += 1) {
+        hex += bytes.charCodeAt(index).toString(16).padStart(2, "0");
+      }
+      return hex;
+    }
+
+    function wrapPdfText(value, maxChars) {
+      const words = String(value || "-").split(/\s+/);
+      const lines = [];
+      let line = "";
+      words.forEach((word) => {
+        const next = line ? `${line} ${word}` : word;
+        if (next.length > maxChars && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = next;
+        }
+      });
+      if (line) lines.push(line);
+      return lines.length ? lines : ["-"];
+    }
+
+    function createPdfBlob() {
+      const data = getFormData();
+      const items = getItems();
+      const pplSignature = signatureSnapshot();
+      const pages = [];
+      let commands = [];
+      let y = 800;
+
+      const addPage = () => {
+        if (commands.length) pages.push(commands.join("\n"));
+        commands = [];
+        y = 800;
+      };
+      const text = (x, yy, size, value, bold = false) => {
+        commands.push(`BT /${bold ? "F2" : "F1"} ${size} Tf ${x} ${yy} Td (${pdfEscape(value)}) Tj ET`);
+      };
+      const line = (x1, y1, x2, y2) => {
+        commands.push(`${x1} ${y1} m ${x2} ${y2} l S`);
+      };
+      const rect = (x, yy, width, height) => {
+        commands.push(`${x} ${yy} ${width} ${height} re S`);
+      };
+      const drawSignaturePaths = (paths, x, yy, width, height) => {
+        if (!paths.length) return;
+        commands.push("q 0 0 0 RG 1.8 w 1 J 1 j");
+        paths.forEach((path) => {
+          if (!path.length) return;
+          const [firstX, firstY] = path[0];
+          commands.push(`${(x + (firstX * width)).toFixed(2)} ${(yy + ((1 - firstY) * height)).toFixed(2)} m`);
+          path.slice(1).forEach(([pointX, pointY]) => {
+            commands.push(`${(x + (pointX * width)).toFixed(2)} ${(yy + ((1 - pointY) * height)).toFixed(2)} l`);
+          });
+          if (path.length === 1) {
+            commands.push(`${(x + (firstX * width) + 0.1).toFixed(2)} ${(yy + ((1 - firstY) * height)).toFixed(2)} l`);
+          }
+          commands.push("S");
+        });
+        commands.push("Q");
+      };
+      const drawAdminSignature = (x, yy, width, height) => {
+        commands.push(`q ${width} 0 0 ${height} ${x} ${yy} cm /AdminSig Do Q`);
+      };
+
+      text(206, y, 18, "Profesi Ternak Sukses", true);
+      y -= 34;
+      text(42, y, 12, "Purchase Order", true);
+      y -= 22;
+
+      [
+        ["Unit / Daerah", data.unit],
+        ["Kode Unit", data.kodeUnit],
+        ["Nama Peternak", data.namaPeternak],
+        ["Populasi", data.populasi],
+        ["Alamat Peternak", data.alamatPeternak],
+        ["Tgl Check In", data.tglCheckIn],
+        ["No PO", data.noPo],
+        ["Tgl PO", data.tglPo]
+      ].forEach(([label, value]) => {
+        text(42, y, 10, label, true);
+        wrapPdfText(value, 58).forEach((lineText, index) => {
+          text(150, y - (index * 13), 10, lineText);
+        });
+        y -= Math.max(16, wrapPdfText(value, 58).length * 13);
+      });
+
+      y -= 10;
+      text(42, y, 11, "Daftar Barang", true);
+      y -= 18;
+
+      const cols = [42, 76, 258, 318, 388, 553];
+      const headers = ["No", "Nama Barang", "Qty", "Satuan", "Suplier"];
+      rect(42, y - 16, 511, 20);
+      headers.forEach((header, index) => text(cols[index] + 5, y - 10, 9, header, true));
+      y -= 20;
+
+      items.forEach((item) => {
+        if (y < 180) {
+          addPage();
+          text(42, y, 12, "Daftar Barang (lanjutan)", true);
+          y -= 22;
+          rect(42, y - 16, 511, 20);
+          headers.forEach((header, index) => text(cols[index] + 5, y - 10, 9, header, true));
+          y -= 20;
+        }
+        const nameLines = wrapPdfText(item.namaBarang, 28);
+        const supplierLines = wrapPdfText(item.supplier, 22);
+        const rowHeight = Math.max(22, nameLines.length * 12, supplierLines.length * 12);
+        rect(42, y - rowHeight + 4, 511, rowHeight);
+        line(76, y + 4, 76, y - rowHeight + 4);
+        line(258, y + 4, 258, y - rowHeight + 4);
+        line(318, y + 4, 318, y - rowHeight + 4);
+        line(388, y + 4, 388, y - rowHeight + 4);
+        text(51, y - 10, 9, item.no);
+        nameLines.forEach((lineText, index) => text(82, y - 10 - (index * 11), 9, lineText));
+        text(264, y - 10, 9, item.qty);
+        text(324, y - 10, 9, item.satuan);
+        supplierLines.forEach((lineText, index) => text(394, y - 10 - (index * 11), 9, lineText));
+        y -= rowHeight;
+      });
+
+      if (y < 168) addPage();
+      y = Math.min(y - 30, 150);
+      text(74, y + 84, 10, "Petugas Penyuluh Lapangan", true);
+      text(398, y + 84, 10, "Admin", true);
+      line(70, y + 28, 230, y + 28);
+      line(374, y + 28, 534, y + 28);
+      if (pplSignature.hasSignature) {
+        drawSignaturePaths(pplSignature.paths, 72, y + 34, 156, 48);
+      }
+      drawAdminSignature(382, y + 35, 126, 84);
+      text(82, y, 10, data.namaPpl || "Nama PPL");
+      text(388, y, 10, adminName);
+
+      pages.push(commands.join("\n"));
+      const adminSignatureHex = base64ToHex(adminSignatureJpeg.base64);
+      const adminSignatureObjectNumber = (pages.length * 2) + 3;
+      const objects = [
+        "<< /Type /Catalog /Pages 2 0 R >>",
+        `<< /Type /Pages /Kids [${pages.map((_, index) => `${(index * 2) + 3} 0 R`).join(" ")}] /Count ${pages.length} >>`
+      ];
+      pages.forEach((content, index) => {
+        const pageObjectNumber = (index * 2) + 3;
+        const contentObjectNumber = pageObjectNumber + 1;
+        objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> >> /XObject << /AdminSig ${adminSignatureObjectNumber} 0 R >> >> /Contents ${contentObjectNumber} 0 R >>`);
+        objects.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+      });
+      objects.push(`<< /Type /XObject /Subtype /Image /Width ${adminSignatureJpeg.width} /Height ${adminSignatureJpeg.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter [/ASCIIHexDecode /DCTDecode] /Length ${adminSignatureHex.length + 1} >>\nstream\n${adminSignatureHex}>\nendstream`);
+
+      let pdf = "%PDF-1.4\n";
+      const offsets = [0];
+      objects.forEach((object, index) => {
+        offsets.push(pdf.length);
+        pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+      });
+      const xref = pdf.length;
+      pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+      offsets.slice(1).forEach((offset) => {
+        pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
+      });
+      pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+      return new Blob([pdf], { type: "application/pdf" });
+    }
+
+    function downloadPdf() {
+      const data = getFormData();
+      if (!getItems().length) {
+        showStatus("Isi minimal 1 barang dulu sebelum download PDF.");
+        return false;
+      }
+      const filenameBase = slug(data.noPo || `${data.unit}-${data.namaPeternak}` || "po");
+      downloadBlob(createPdfBlob(), `${filenameBase}.pdf`);
+      showStatus("PDF siap di-download.");
+      return true;
+    }
+
+    async function submitOrder() {
+      const validationMessage = validateBeforeSubmit();
+      if (validationMessage) {
+        showStatus(validationMessage);
+        return;
+      }
+
+      const submitButton = document.querySelector("#submitBtn");
+      submitButton.disabled = true;
+      submitButton.textContent = "Submitting...";
+
+      const submitTimestamp = formatTimestamp();
+      let pdfDownloaded = false;
+      let downloadTimestamp = "";
+      try {
+        pdfDownloaded = downloadPdf();
+        if (pdfDownloaded) downloadTimestamp = formatTimestamp();
+        const payload = buildPayload({ submitTimestamp, downloadTimestamp, pdfDownloaded });
+        const sent = await sendToSheets(payload);
+        if (sent) resetFormAfterSubmit();
+        showStatus(sent
+          ? "Submit selesai. Form sudah dikosongkan dan no PO berikutnya akan dibuat baru."
+          : "PDF dibuat, tapi data belum berhasil dikirim ke Sheets.");
+      } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg>Submit';
+      }
+    }
+
+    function showStatus(message) {
+      statusEl.textContent = message;
+      window.clearTimeout(showStatus.timer);
+      showStatus.timer = window.setTimeout(() => {
+        statusEl.textContent = "";
+      }, 3600);
+    }
+
+    function resetFormAfterSubmit() {
+      formFields.forEach((field) => {
+        document.querySelector(`#${field}`).value = "";
+      });
+      itemsBody.innerHTML = "";
+      signaturePaths = [];
+      activeSignaturePath = null;
+      drawSignature();
+      localStorage.removeItem(stateKey);
+      addRow();
+      syncGeneratedIds(true);
+      refresh();
+    }
+
+    function saveState() {
+      const payload = {
+        form: getRawFormData(),
+        items: getItems(),
+        pplSignature: signatureSnapshot()
+      };
+      localStorage.setItem(stateKey, JSON.stringify(payload));
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(stateKey) || "null");
+        if (!saved) return false;
+        formFields.forEach((field) => {
+          document.querySelector(`#${field}`).value = saved.form?.[field] || "";
+        });
+        syncGeneratedIds(false);
+        restoreSignature(saved.pplSignature);
+        itemsBody.innerHTML = "";
+        const items = Array.isArray(saved.items) && saved.items.length ? saved.items : [{}];
+        items.forEach(addRow);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function refresh() {
+      renumberRows();
+      renderMeta(getFormData());
+      renderPreview(getItems());
+      saveState();
+    }
+
+    document.querySelector("#addRowBtn").addEventListener("click", () => addRow());
+    document.querySelector("#sampleBtn").addEventListener("click", () => {
+      if (getItems().length || itemsBody.querySelector('[data-field="namaBarang"]')?.value) {
+        addRow({ namaBarang: "Vitamin ayam", qty: "1", satuan: "100 ML", supplier: "PT ANUGERAH PANJI MANDIRI" });
+      } else {
+        itemsBody.innerHTML = "";
+        addRow({ namaBarang: "Vitamin ayam", qty: "1", satuan: "100 ML", supplier: "PT ANUGERAH PANJI MANDIRI" });
+        addRow({ namaBarang: "Obat ternak", qty: "3", satuan: "100 GR" });
+        addRow({ namaBarang: "Sabun kandang", qty: "2", satuan: "800 ML" });
+      }
+      showStatus("Contoh barang sudah ditambahkan.");
+    });
+    document.querySelector("#submitBtn").addEventListener("click", submitOrder);
+    document.querySelector("#clearSignatureBtn").addEventListener("click", clearSignature);
+    signatureCanvas.addEventListener("pointerdown", startSignature);
+    signatureCanvas.addEventListener("pointermove", moveSignature);
+    signatureCanvas.addEventListener("pointerup", endSignature);
+    signatureCanvas.addEventListener("pointercancel", endSignature);
+    signatureCanvas.addEventListener("pointerleave", endSignature);
+    formFields.forEach((field) => {
+      document.querySelector(`#${field}`).addEventListener("input", refresh);
+      document.querySelector(`#${field}`).addEventListener("change", () => {
+        if (field === "unit" || field === "tglPo") syncGeneratedIds(true);
+        refresh();
+      });
+    });
+
+    if (!loadState()) addRow();
+    drawSignature();
+    syncGeneratedIds(false);
+    refresh();
+  </script>
+</body>
+</html>
