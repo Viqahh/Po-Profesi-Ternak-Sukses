@@ -163,7 +163,7 @@
       <div class="mark" aria-hidden="true">PO</div>
       <div>
         <h1 id="adminTitle">Admin</h1>
-        <p class="subtitle">Masuk untuk memilih daerah PO OVK.</p>
+        <p class="subtitle">Masuk admin lalu pilih daerah di halaman utama.</p>
       </div>
     </div>
     <div class="body">
@@ -174,17 +174,6 @@
       <div class="field">
         <label for="adminPassword">Password Admin</label>
         <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Masukkan password admin">
-      </div>
-      <div class="field">
-        <label for="adminRegion">Daerah</label>
-        <select id="adminRegion">
-          <option value="">Pilih daerah</option>
-          <option value="Sengkang">Sengkang</option>
-          <option value="Maros">Maros</option>
-          <option value="Takalar">Takalar</option>
-          <option value="Kendari">Kendari</option>
-          <option value="Masamba">Masamba</option>
-        </select>
       </div>
       <div class="actions">
         <button class="button" id="adminLoginBtn" type="button">Masuk Admin</button>
@@ -203,16 +192,14 @@
 
     const adminId = document.querySelector("#adminId");
     const adminPassword = document.querySelector("#adminPassword");
-    const adminRegion = document.querySelector("#adminRegion");
     const adminError = document.querySelector("#adminError");
 
     function loginAdmin() {
       const id = adminId.value.trim();
       const password = adminPassword.value.trim();
-      const region = adminRegion.value;
 
-      if (!id || !password || !region) {
-        adminError.textContent = "Admin ID, password, dan daerah wajib diisi.";
+      if (!id || !password) {
+        adminError.textContent = "Admin ID dan password wajib diisi.";
         return;
       }
 
@@ -221,9 +208,9 @@
         return;
       }
 
+      localStorage.removeItem("po-sheet-generator-v4");
       localStorage.setItem(authKey, JSON.stringify({
         role: "admin",
-        region,
         adminId: id,
         submitSecret: password,
         loggedInAt: new Date().toISOString()
@@ -235,7 +222,7 @@
     document.querySelector("#backBtn").addEventListener("click", () => {
       window.location.href = "index.html";
     });
-    [adminId, adminPassword, adminRegion].forEach((field) => {
+    [adminId, adminPassword].forEach((field) => {
       field.addEventListener("keydown", (event) => {
         if (event.key === "Enter") loginAdmin();
       });
