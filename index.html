@@ -98,6 +98,10 @@
       gap: 8px;
     }
 
+    .bottom-actions {
+      margin-top: 16px;
+    }
+
     .button {
       display: inline-flex;
       min-height: 40px;
@@ -476,14 +480,6 @@
       .item-tools .button {
         flex: 1 1 160px;
       }
-      
-      .actions {
-        position: fixed;
-        left: 10px;
-        right: 10px;
-        bottom: 10px;
-        z-index: 20;
-      }
     }
   </style>
 </head>
@@ -495,12 +491,6 @@
         <div>
           <h1>Profesi Ternak Sukses</h1>
         </div>
-      </div>
-      <div class="actions" aria-label="Aksi utama">
-        <button class="button primary" id="submitBtn" type="button" title="Submit, download PDF, dan kirim ke Google Sheets">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
-          Submit
-        </button>
       </div>
     </header>
 
@@ -610,6 +600,13 @@
         <div class="table-wrap" id="previewWrap"></div>
       </section>
     </section>
+
+    <div class="actions bottom-actions" aria-label="Aksi utama">
+      <button class="button primary" id="submitBtn" type="button" title="Submit, download PDF, dan kirim ke Google Sheets">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
+        Submit
+      </button>
+    </div>
 
     <p class="footer-note">Catatan: Submit akan download PDF lalu mengirim data ke Apps Script master sheet sesuai daerah/unit, lengkap dengan status download dan timestamp.</p>
   </main>
