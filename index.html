@@ -50,6 +50,55 @@
       padding: 22px 0 36px;
     }
 
+    body.login-active .app-shell,
+    body.app-active .login-screen {
+      display: none;
+    }
+
+    .login-screen {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      padding: 22px;
+    }
+
+    .login-card {
+      width: min(440px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .login-card .panel-body {
+      display: grid;
+      gap: 14px;
+    }
+
+    .login-brand {
+      justify-content: center;
+      padding: 18px 18px 8px;
+    }
+
+    .login-actions {
+      display: grid;
+      gap: 9px;
+    }
+
+    .login-error {
+      min-height: 19px;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .session-chip {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
     .topbar {
       display: flex;
       align-items: center;
@@ -483,14 +532,52 @@
     }
   </style>
 </head>
-<body>
-  <main class="shell">
+<body class="login-active">
+  <main class="login-screen" id="loginScreen">
+    <section class="login-card" aria-labelledby="loginTitle">
+      <div class="brand login-brand">
+        <div class="mark" aria-hidden="true">PO</div>
+        <div>
+          <h1 id="loginTitle">Profesi Ternak Sukses</h1>
+          <p class="subtitle">Masuk sesuai daerah sebelum membuat PO OVK.</p>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="field">
+          <label for="loginRegion">Daerah</label>
+          <select id="loginRegion">
+            <option value="">Pilih daerah</option>
+            <option value="Sengkang">Sengkang</option>
+            <option value="Maros">Maros</option>
+            <option value="Takalar">Takalar</option>
+            <option value="Kendari">Kendari</option>
+            <option value="Masamba">Masamba</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password Daerah</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password daerah">
+        </div>
+        <div class="login-actions">
+          <button class="button primary" id="loginBtn" type="button">Masuk</button>
+          <button class="button secondary" id="adminPageBtn" type="button">Admin</button>
+        </div>
+        <div class="login-error" id="loginError" role="alert"></div>
+      </div>
+    </section>
+  </main>
+
+  <main class="shell app-shell" id="appShell">
     <header class="topbar">
       <div class="brand">
         <div class="mark" aria-hidden="true">PO</div>
         <div>
           <h1>Profesi Ternak Sukses</h1>
         </div>
+      </div>
+      <div class="actions" aria-label="Sesi">
+        <span class="session-chip" id="sessionChip"></span>
+        <button class="button secondary compact" id="logoutBtn" type="button">Keluar</button>
       </div>
     </header>
 
@@ -642,7 +729,15 @@
     const appsScriptUrl = "https://script.google.com/macros/s/AKfycbx-C_OEdjfHfFf3e_2MkmVvzD5sy_hXZW-6vv2gfAX6STWtgqXWSqNyeC3p4R19XaVH/exec";
     const formFields = ["unit", "kodeUnit", "namaPeternak", "populasi", "alamatPeternak", "tglCheckIn", "noPo", "tglPo", "namaPpl"];
     const stateKey = "po-sheet-generator-v4";
+    const authKey = "po-ovk-auth-session-v1";
     const adminName = "Ananda Thufail";
+    const regionPasswords = {
+      Maros: "Maros010",
+      Takalar: "Takalar020",
+      Sengkang: "Sengkang030",
+      Kendari: "Kendari040",
+      Masamba: "Masamba050"
+    };
     const adminSignatureJpeg = {
       width: 225,
       height: 205,
@@ -673,8 +768,14 @@
     const previewWrap = document.querySelector("#previewWrap");
     const signatureCanvas = document.querySelector("#pplSignature");
     const signatureCtx = signatureCanvas.getContext("2d");
+    const loginRegion = document.querySelector("#loginRegion");
+    const loginPassword = document.querySelector("#loginPassword");
+    const loginError = document.querySelector("#loginError");
+    const sessionChip = document.querySelector("#sessionChip");
+    const unitSelect = document.querySelector("#unit");
     let signaturePaths = [];
     let activeSignaturePath = null;
+    let activeSession = null;
 
     const labels = {
       unit: "Unit / Daerah",
@@ -687,6 +788,112 @@
       tglPo: "Tgl PO",
       namaPpl: "Nama PPL"
     };
+
+    function readAuthSession() {
+      try {
+        return JSON.parse(localStorage.getItem(authKey) || "null");
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function saveAuthSession(session) {
+      localStorage.setItem(authKey, JSON.stringify(session));
+    }
+
+    function showLogin(message = "") {
+      activeSession = null;
+      document.body.classList.add("login-active");
+      document.body.classList.remove("app-active");
+      unitSelect.disabled = false;
+      sessionChip.textContent = "";
+      loginError.textContent = message;
+    }
+
+    function clearWorkingForm(region = "") {
+      formFields.forEach((field) => {
+        document.querySelector(`#${field}`).value = "";
+      });
+      itemsBody.innerHTML = "";
+      signaturePaths = [];
+      activeSignaturePath = null;
+      drawSignature();
+      localStorage.removeItem(stateKey);
+      if (region) unitSelect.value = region;
+      syncGeneratedIds(true);
+      addRow();
+      refresh();
+    }
+
+    function applyAuthSession(session, resetForm = false) {
+      if (!session || !session.role) {
+        showLogin();
+        return;
+      }
+
+      activeSession = session;
+      document.body.classList.remove("login-active");
+      document.body.classList.add("app-active");
+      loginPassword.value = "";
+      loginError.textContent = "";
+
+      if (resetForm) {
+        clearWorkingForm(session.region || "");
+      } else if (session.region) {
+        unitSelect.value = session.region;
+      }
+
+      unitSelect.disabled = session.role !== "admin";
+      sessionChip.textContent = session.role === "admin"
+        ? `Admin${session.region ? ` - ${session.region}` : ""}`
+        : `Daerah ${session.region}`;
+      syncGeneratedIds(false);
+      refresh();
+    }
+
+    function loginRegionUser() {
+      const region = loginRegion.value;
+      const password = loginPassword.value.trim();
+
+      if (!region) {
+        loginError.textContent = "Pilih daerah dulu.";
+        return;
+      }
+
+      if (password !== regionPasswords[region]) {
+        loginError.textContent = "Password daerah salah.";
+        return;
+      }
+
+      const session = { role: "user", region, submitSecret: password, loggedInAt: new Date().toISOString() };
+      saveAuthSession(session);
+      applyAuthSession(session, true);
+    }
+
+    function buildSubmitAuth(region) {
+      if (!activeSession) return null;
+      if (activeSession.role === "admin") {
+        return {
+          role: "admin",
+          region,
+          adminId: activeSession.adminId || "",
+          password: activeSession.submitSecret || ""
+        };
+      }
+
+      return {
+        role: "user",
+        region,
+        password: activeSession.submitSecret || regionPasswords[region] || ""
+      };
+    }
+
+    function logout() {
+      localStorage.removeItem(authKey);
+      localStorage.removeItem(stateKey);
+      loginPassword.value = "";
+      showLogin();
+    }
 
     function formatDate(value) {
       if (!value) return "";
@@ -1052,6 +1259,7 @@
         unit: form.unit,
         kodeUnit: form.kodeUnit,
         admin: adminName,
+        auth: buildSubmitAuth(form.unit),
         form,
         items,
         rows: sheetRows({ submitTimestamp, downloadTimestamp, pdfDownloaded }),
@@ -1384,6 +1592,7 @@
     }
 
     function resetFormAfterSubmit() {
+      const preservedRegion = activeSession?.role === "user" ? activeSession.region : "";
       formFields.forEach((field) => {
         document.querySelector(`#${field}`).value = "";
       });
@@ -1392,6 +1601,7 @@
       activeSignaturePath = null;
       drawSignature();
       localStorage.removeItem(stateKey);
+      if (preservedRegion) unitSelect.value = preservedRegion;
       addRow();
       syncGeneratedIds(true);
       refresh();
@@ -1443,6 +1653,14 @@
       }
       showStatus("Contoh barang sudah ditambahkan.");
     });
+    document.querySelector("#loginBtn").addEventListener("click", loginRegionUser);
+    document.querySelector("#adminPageBtn").addEventListener("click", () => {
+      window.location.href = "adminpage.html";
+    });
+    document.querySelector("#logoutBtn").addEventListener("click", logout);
+    loginPassword.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") loginRegionUser();
+    });
     document.querySelector("#submitBtn").addEventListener("click", submitOrder);
     document.querySelector("#clearSignatureBtn").addEventListener("click", clearSignature);
     signatureCanvas.addEventListener("pointerdown", startSignature);
@@ -1462,6 +1680,12 @@
     drawSignature();
     syncGeneratedIds(false);
     refresh();
+    const savedSession = readAuthSession();
+    if (savedSession) {
+      applyAuthSession(savedSession, false);
+    } else {
+      showLogin();
+    }
   </script>
 </body>
 </html>
