@@ -347,7 +347,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 720px;
+      min-width: 760px;
     }
 
     th,
@@ -396,11 +396,58 @@
       padding: 8px 9px;
     }
 
+    .items-table input[readonly],
+    .items-table select:disabled {
+      color: #475569;
+      background: #f7f9fc;
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
     .satuan-group {
       display: grid;
       grid-template-columns: minmax(70px, 0.72fr) minmax(92px, 1fr);
       gap: 7px;
       min-width: 170px;
+    }
+
+    .total-summary {
+      display: flex;
+      justify-content: flex-end;
+      padding: 12px 16px;
+      color: var(--ink);
+      font-weight: 800;
+      background: #fbfcfe;
+      border-top: 1px solid var(--line);
+    }
+
+    .price-summary {
+      display: grid;
+      gap: 8px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    .price-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .price-row strong {
+      color: var(--ink);
+    }
+
+    .price-row.total {
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+      color: var(--ink);
+      font-weight: 800;
+      font-size: 14px;
     }
 
     .mini-button {
@@ -674,6 +721,7 @@
             <tbody id="itemsBody"></tbody>
           </table>
         </div>
+        <div class="price-summary" id="priceSummary"></div>
         <p class="item-note">Baris barang yang kosong tidak akan masuk ke Sheets. Kalau ada baris yang sudah diisi tapi belum lengkap, submit akan ditahan sampai nama barang, qty, satuan, dan suplier lengkap.</p>
         <div class="status" id="status" role="status" aria-live="polite"></div>
       </section>
@@ -701,22 +749,45 @@
   <template id="itemTemplate">
     <tr>
       <td class="row-number"></td>
-      <td><input data-field="namaBarang" placeholder="Nama barang"></td>
+      <td>
+        <select data-field="namaBarang">
+          <option value="">Pilih barang</option>
+          <option value="ANTI-HEATSTRESS">ANTI-HEATSTRESS</option>
+          <option value="BENZAKLIN">BENZAKLIN</option>
+          <option value="ERI-PLUS">ERI-PLUS</option>
+          <option value="HEPAMUN">HEPAMUN</option>
+          <option value="Immunozinc">Immunozinc</option>
+          <option value="Interflox Oral">Interflox Oral</option>
+          <option value="Introvit 4+ WS">Introvit 4+ WS</option>
+          <option value="Introvit-ES-100 Oral">Introvit-ES-100 Oral</option>
+          <option value="KLORIN-GARD">KLORIN-GARD</option>
+          <option value="NEO MONOXAN">NEO MONOXAN</option>
+          <option value="PARAGIN">PARAGIN</option>
+          <option value="SPECTARAL">SPECTARAL</option>
+          <option value="TM-Vita">TM-Vita</option>
+          <option value="TYLOQUIN">TYLOQUIN</option>
+        </select>
+      </td>
       <td><input data-field="qty" inputmode="decimal" placeholder="0"></td>
       <td>
         <div class="satuan-group">
-          <input data-field="satuanJumlah" inputmode="decimal" placeholder="800">
-          <select data-field="satuanUnit">
+          <input data-field="satuanJumlah" inputmode="decimal" placeholder="Auto" readonly>
+          <select data-field="satuanUnit" disabled>
             <option value="">Pilih</option>
-            <option value="GR">GR</option>
-            <option value="ML">ML</option>
-            <option value="L">L</option>
-            <option value="BOTOL">BOTOL</option>
-            <option value="BUNGKUS">BUNGKUS</option>
+            <option value="kg">kg</option>
+            <option value="gram">gram</option>
+            <option value="liter">liter</option>
+            <option value="ml">ml</option>
+            <option value="tablet">tablet</option>
           </select>
         </div>
       </td>
-      <td><input data-field="supplier" placeholder="Nama suplier"></td>
+      <td>
+        <select data-field="supplier">
+          <option value="">Pilih suplier</option>
+          <option value="TMC">TMC</option>
+        </select>
+      </td>
       <td>
         <button class="mini-button" type="button" title="Hapus baris">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18"></path><path d="M6 6l12 12"></path></svg>
@@ -728,7 +799,7 @@
   <script>
     const appsScriptUrl = "https://script.google.com/macros/s/AKfycbx-C_OEdjfHfFf3e_2MkmVvzD5sy_hXZW-6vv2gfAX6STWtgqXWSqNyeC3p4R19XaVH/exec";
     const formFields = ["unit", "kodeUnit", "namaPeternak", "populasi", "alamatPeternak", "tglCheckIn", "noPo", "tglPo", "namaPpl"];
-    const stateKey = "po-sheet-generator-v4";
+    const stateKey = "po-sheet-generator-v6";
     const authKey = "po-ovk-auth-session-v1";
     const adminName = "Ananda Thufail";
     const regionPasswords = {
@@ -738,6 +809,25 @@
       Kendari: "Kendari040",
       Masamba: "Masamba050"
     };
+    const productCatalog = {
+      "ANTI-HEATSTRESS": { price: 27528, amount: 100, unit: "gram" },
+      "BENZAKLIN": { price: 49950, amount: 1, unit: "liter" },
+      "ERI-PLUS": { price: 63270, amount: 100, unit: "gram" },
+      "HEPAMUN": { price: 28749, amount: 100, unit: "gram" },
+      "Immunozinc": { price: 419580, amount: 1, unit: "kg" },
+      "Interflox Oral": { price: 416250, amount: 1000, unit: "ml" },
+      "Introvit 4+ WS": { price: 77700, amount: 100, unit: "gram" },
+      "Introvit-ES-100 Oral": { price: 449550, amount: 1000, unit: "ml" },
+      "KLORIN-GARD": { price: 291375, amount: 50, unit: "tablet" },
+      "NEO MONOXAN": { price: 44955, amount: 100, unit: "gram" },
+      "PARAGIN": { price: 29970, amount: 100, unit: "gram" },
+      "SPECTARAL": { price: 208125, amount: 1, unit: "liter" },
+      "TM-Vita": { price: 20868, amount: 100, unit: "gram" },
+      "TYLOQUIN": { price: 69930, amount: 100, unit: "gram" }
+    };
+    let stockLevels = {};
+    let stockRequestSeq = 0;
+    let lastStockModeKey = "";
     const adminSignatureJpeg = {
       width: 225,
       height: 205,
@@ -766,6 +856,7 @@
     const rowCountEl = document.querySelector("#rowCount");
     const metaPreview = document.querySelector("#metaPreview");
     const previewWrap = document.querySelector("#previewWrap");
+    const priceSummary = document.querySelector("#priceSummary");
     const signatureCanvas = document.querySelector("#pplSignature");
     const signatureCtx = signatureCanvas.getContext("2d");
     const loginRegion = document.querySelector("#loginRegion");
@@ -948,6 +1039,115 @@
       return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
     }
 
+    function parseDecimal(value) {
+      const text = String(value || "").trim().replace(/\./g, "").replace(",", ".");
+      const number = Number(text);
+      return Number.isFinite(number) ? number : 0;
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }).format(Number(value) || 0);
+    }
+
+    function productInfo(productName) {
+      return productCatalog[productName] || null;
+    }
+
+    function itemPrice(productName) {
+      return productInfo(productName)?.price || 0;
+    }
+
+    function formatAmount(value) {
+      const number = Number(value) || 0;
+      return Number.isInteger(number) ? String(number) : String(Number(number.toFixed(2)));
+    }
+
+    function isGudangName(value) {
+      return String(value || "").trim().toLowerCase() === "gudang";
+    }
+
+    function isKendariPeternakMode(data = getRawFormData()) {
+      return data.unit === "Kendari" && Boolean(String(data.namaPeternak || "").trim()) && !isGudangName(data.namaPeternak);
+    }
+
+    function requestedStockAmount(item) {
+      const info = productInfo(item.namaBarang);
+      return info ? info.amount * parseDecimal(item.qty) : 0;
+    }
+
+    function stockLabel(productName) {
+      const info = productInfo(productName);
+      const stock = stockLevels[productName];
+      if (!info) return "-";
+      if (!stock || typeof stock.amount !== "number") return "loading";
+      return `${formatAmount(stock.amount)} ${stock.unit || info.unit}`;
+    }
+
+    function refreshProductStockLabels() {
+      const showStock = isKendariPeternakMode();
+      document.querySelectorAll('[data-field="namaBarang"]').forEach((select) => {
+        [...select.options].forEach((option) => {
+          if (!option.value) return;
+          option.textContent = showStock
+            ? `${option.value} - stok ${stockLabel(option.value)}`
+            : option.value;
+        });
+      });
+    }
+
+    function loadKendariStock() {
+      const seq = stockRequestSeq + 1;
+      stockRequestSeq = seq;
+      const callbackName = `poStockCallback_${Date.now()}_${seq}`;
+      const script = document.createElement("script");
+
+      window[callbackName] = (response) => {
+        if (seq === stockRequestSeq) {
+          stockLevels = response && response.ok && response.stock ? response.stock : {};
+          refreshProductStockLabels();
+          renderPriceSummary(getItems());
+        }
+        delete window[callbackName];
+        script.remove();
+      };
+
+      script.onerror = () => {
+        if (seq === stockRequestSeq) {
+          stockLevels = {};
+          refreshProductStockLabels();
+          renderPriceSummary(getItems());
+          showStatus("Stok Kendari belum bisa dibaca. Cek Code.gs / koneksi.");
+        }
+        delete window[callbackName];
+        script.remove();
+      };
+
+      script.src = `${appsScriptUrl}?action=stock&region=Kendari&callback=${callbackName}&t=${Date.now()}`;
+      document.body.appendChild(script);
+    }
+
+    function syncStockMode() {
+      const data = getRawFormData();
+      const modeKey = isKendariPeternakMode(data) ? `Kendari:${String(data.namaPeternak).trim().toLowerCase()}` : "";
+      if (modeKey === lastStockModeKey) {
+        refreshProductStockLabels();
+        return;
+      }
+
+      lastStockModeKey = modeKey;
+      stockLevels = {};
+      refreshProductStockLabels();
+      if (modeKey) loadKendariStock();
+    }
+
+    function orderTotal(items = getItems()) {
+      return items.reduce((sum, item) => sum + (Number(item.totalHarga) || 0), 0);
+    }
+
     function generateKodeUnit(region) {
       if (!region) return "";
       return regionCodes[region] || region.slice(0, 3).toUpperCase();
@@ -993,8 +1193,24 @@
       if (!match) return { jumlah: text, unit: "" };
       return {
         jumlah: match[1].trim(),
-        unit: match[2].trim().toUpperCase()
+        unit: normalizeSatuanUnit(match[2])
       };
+    }
+
+    function normalizeSatuanUnit(value = "") {
+      const unit = String(value || "").trim().toLowerCase();
+      const aliases = {
+        gr: "gram",
+        g: "gram",
+        kg: "kg",
+        kilogram: "kg",
+        l: "liter",
+        lt: "liter",
+        liter: "liter",
+        ml: "ml",
+        tablet: "tablet"
+      };
+      return aliases[unit] || unit;
     }
 
     function signaturePoint(event) {
@@ -1085,17 +1301,35 @@
       return [jumlah, unit].filter(Boolean).join(" ");
     }
 
+    function syncSatuanFromProduct(row) {
+      const namaBarang = row.querySelector('[data-field="namaBarang"]')?.value || "";
+      const info = productInfo(namaBarang);
+      if (!info) return;
+
+      const qty = parseDecimal(row.querySelector('[data-field="qty"]')?.value || "1") || 1;
+      row.querySelector('[data-field="satuanJumlah"]').value = formatAmount(info.amount * qty);
+      row.querySelector('[data-field="satuanUnit"]').value = info.unit;
+    }
+
     function readItemRow(row, index) {
       const read = (field) => row.querySelector(`[data-field="${field}"]`)?.value.trim() || "";
       const satuanJumlah = read("satuanJumlah");
-      const satuanUnit = read("satuanUnit");
+      const satuanUnit = normalizeSatuanUnit(read("satuanUnit"));
+      const namaBarang = read("namaBarang");
+      const qty = read("qty");
+      const hargaSatuan = itemPrice(namaBarang);
+      const totalHarga = parseDecimal(qty) * hargaSatuan;
       return {
         no: index + 1,
-        namaBarang: read("namaBarang"),
-        qty: read("qty"),
+        namaBarang,
+        qty,
         satuanJumlah,
         satuanUnit,
         satuan: [satuanJumlah, satuanUnit].filter(Boolean).join(" "),
+        hargaSatuan,
+        hargaSatuanFormatted: formatCurrency(hargaSatuan),
+        totalHarga,
+        totalHargaFormatted: formatCurrency(totalHarga),
         supplier: read("supplier")
       };
     }
@@ -1121,6 +1355,15 @@
       });
     }
 
+    function syncRowMoney(row) {
+      const index = [...itemsBody.querySelectorAll("tr")].indexOf(row);
+      const item = readItemRow(row, Math.max(index, 0));
+      const hargaDisplay = row.querySelector('[data-field="hargaDisplay"]');
+      const totalDisplay = row.querySelector('[data-field="totalDisplay"]');
+      if (hargaDisplay) hargaDisplay.textContent = item.hargaSatuanFormatted;
+      if (totalDisplay) totalDisplay.textContent = item.totalHargaFormatted;
+    }
+
     function getItems() {
       return [...itemsBody.querySelectorAll("tr")]
         .map(readItemRow)
@@ -1133,7 +1376,7 @@
       row.querySelector('[data-field="namaBarang"]').value = item.namaBarang || "";
       row.querySelector('[data-field="qty"]').value = item.qty || "";
       row.querySelector('[data-field="satuanJumlah"]').value = item.satuanJumlah || satuan.jumlah || "";
-      row.querySelector('[data-field="satuanUnit"]').value = item.satuanUnit || satuan.unit || "";
+      row.querySelector('[data-field="satuanUnit"]').value = normalizeSatuanUnit(item.satuanUnit || satuan.unit || "");
       const supplierInput = row.querySelector('[data-field="supplier"]');
       const isFirstRow = itemsBody.children.length === 0;
       supplierInput.value = item.supplier || (isFirstRow ? "" : firstSupplierValue());
@@ -1153,11 +1396,25 @@
               field.dataset.autoSupplier = "false";
             }
           }
+          if (field.dataset.field === "namaBarang" || field.dataset.field === "qty") {
+            syncSatuanFromProduct(row);
+          }
+          syncRowMoney(row);
           refresh();
         });
-        field.addEventListener("change", refresh);
+        field.addEventListener("change", () => {
+          if (field.dataset.field === "namaBarang" || field.dataset.field === "qty") {
+            syncSatuanFromProduct(row);
+          }
+          syncRowMoney(row);
+          refresh();
+        });
       });
       itemsBody.appendChild(row);
+      if (item.namaBarang && !item.satuan && !item.satuanJumlah && !item.satuanUnit) {
+        syncSatuanFromProduct(row);
+      }
+      syncRowMoney(row);
       syncSupplierFromFirst(false);
       refresh();
     }
@@ -1165,6 +1422,7 @@
     function renumberRows() {
       [...itemsBody.querySelectorAll("tr")].forEach((row, index) => {
         row.querySelector(".row-number").textContent = index + 1;
+        syncRowMoney(row);
       });
     }
 
@@ -1188,8 +1446,33 @@
       `).join("");
     }
 
+    function renderPriceSummary(items) {
+      if (!items.length) {
+        priceSummary.innerHTML = `
+          <div class="price-row">
+            <span>Harga dan total order muncul setelah barang dipilih.</span>
+            <strong>${formatCurrency(0)}</strong>
+          </div>
+        `;
+        return;
+      }
+
+      priceSummary.innerHTML = `
+        ${items.map((item) => `
+          <div class="price-row">
+            <span>${item.no}. ${escapeHtml(item.namaBarang || "Barang")} - ${escapeHtml(item.qty || "0")} x ${escapeHtml(item.hargaSatuanFormatted)}${isKendariPeternakMode() ? ` | stok ${escapeHtml(stockLabel(item.namaBarang))}` : ""}</span>
+            <strong>${escapeHtml(item.totalHargaFormatted)}</strong>
+          </div>
+        `).join("")}
+        <div class="price-row total">
+          <span>Total PO</span>
+          <strong>${escapeHtml(formatCurrency(orderTotal(items)))}</strong>
+        </div>
+      `;
+    }
+
     function renderPreview(items) {
-      rowCountEl.textContent = `${items.length} baris barang`;
+      rowCountEl.textContent = `${items.length} baris barang | Total ${formatCurrency(orderTotal(items))}`;
       if (!items.length) {
         previewWrap.innerHTML = '<div class="empty">Belum ada barang yang siap dibuat sheet.</div>';
         return;
@@ -1202,6 +1485,8 @@
               <th>Nama Barang</th>
               <th>Qty</th>
               <th>Satuan</th>
+              <th>Harga</th>
+              <th>Total</th>
               <th>Suplier</th>
             </tr>
           </thead>
@@ -1212,11 +1497,14 @@
                 <td>${escapeHtml(item.namaBarang)}</td>
                 <td>${escapeHtml(item.qty)}</td>
                 <td>${escapeHtml(item.satuan)}</td>
+                <td>${escapeHtml(item.hargaSatuanFormatted)}</td>
+                <td>${escapeHtml(item.totalHargaFormatted)}</td>
                 <td>${escapeHtml(item.supplier)}</td>
               </tr>
             `).join("")}
           </tbody>
         </table>
+        <div class="total-summary">Total PO: ${escapeHtml(formatCurrency(orderTotal(items)))}</div>
       `;
     }
 
@@ -1237,12 +1525,21 @@
         ["Tgl PO", data.tglPo],
         ["Nama PPL", data.namaPpl],
         ["Admin", adminName],
+        ["Total PO", formatCurrency(orderTotal(items))],
         ["Timestamp Submit", submitTimestamp],
         ["Download PDF", downloadStatus],
         ["Timestamp Download PDF", downloadTimestamp || "Belum"],
         [],
-        ["No", "Nama Barang", "Qty", "Satuan", "Suplier"],
-        ...items.map((item) => [item.no, item.namaBarang, item.qty, item.satuan, item.supplier])
+        ["No", "Nama Barang", "Qty", "Satuan", "Harga", "Total", "Suplier"],
+        ...items.map((item) => [
+          item.no,
+          item.namaBarang,
+          item.qty,
+          item.satuan,
+          item.hargaSatuan,
+          item.totalHarga,
+          item.supplier
+        ])
       ];
     }
 
@@ -1260,8 +1557,13 @@
         kodeUnit: form.kodeUnit,
         admin: adminName,
         auth: buildSubmitAuth(form.unit),
+        stockMovement: form.unit === "Kendari"
+          ? (isGudangName(form.namaPeternak) ? "in" : "out")
+          : "",
         form,
         items,
+        totalOrder: orderTotal(items),
+        totalOrderFormatted: formatCurrency(orderTotal(items)),
         rows: sheetRows({ submitTimestamp, downloadTimestamp, pdfDownloaded }),
         pplSignature: signatureSnapshot(),
         pdfDownloaded,
@@ -1335,6 +1637,28 @@
 
       if (incomplete) {
         return `Lengkapi barang baris ${incomplete.no}: nama barang, qty, satuan, dan suplier wajib diisi.`;
+      }
+
+      const invalidQty = rows.find((item) => hasItemContent(item) && parseDecimal(item.qty) <= 0);
+      if (invalidQty) {
+        return `Qty barang baris ${invalidQty.no} harus lebih dari 0.`;
+      }
+
+      const missingPrice = rows.find((item) => hasItemContent(item) && !item.hargaSatuan);
+      if (missingPrice) {
+        return `Harga barang baris ${missingPrice.no} belum tersedia. Pilih nama barang dari list.`;
+      }
+
+      if (isKendariPeternakMode(data)) {
+        const unknownStock = items.find((item) => !stockLevels[item.namaBarang] || typeof stockLevels[item.namaBarang].amount !== "number");
+        if (unknownStock) {
+          return `Stok ${unknownStock.namaBarang} belum terbaca. Tunggu sebentar atau refresh halaman.`;
+        }
+
+        const overStock = items.find((item) => requestedStockAmount(item) > stockLevels[item.namaBarang].amount);
+        if (overStock) {
+          return `Stok ${overStock.namaBarang} tidak cukup. Diminta ${formatAmount(requestedStockAmount(overStock))} ${overStock.satuanUnit}, sisa ${stockLabel(overStock.namaBarang)}.`;
+        }
       }
 
       return "";
@@ -1468,8 +1792,9 @@
       text(42, y, 11, "Daftar Barang", true);
       y -= 18;
 
-      const cols = [42, 76, 258, 318, 388, 553];
-      const headers = ["No", "Nama Barang", "Qty", "Satuan", "Suplier"];
+      const cols = [42, 66, 214, 254, 310, 372, 434, 553];
+      const dividers = [64, 214, 254, 310, 372, 434];
+      const headers = ["No", "Nama Barang", "Qty", "Satuan", "Harga", "Total", "Suplier"];
       rect(42, y - 16, 511, 20);
       headers.forEach((header, index) => text(cols[index] + 5, y - 10, 9, header, true));
       y -= 20;
@@ -1483,21 +1808,24 @@
           headers.forEach((header, index) => text(cols[index] + 5, y - 10, 9, header, true));
           y -= 20;
         }
-        const nameLines = wrapPdfText(item.namaBarang, 28);
-        const supplierLines = wrapPdfText(item.supplier, 22);
+        const nameLines = wrapPdfText(item.namaBarang, 22);
+        const supplierLines = wrapPdfText(item.supplier, 14);
         const rowHeight = Math.max(22, nameLines.length * 12, supplierLines.length * 12);
         rect(42, y - rowHeight + 4, 511, rowHeight);
-        line(76, y + 4, 76, y - rowHeight + 4);
-        line(258, y + 4, 258, y - rowHeight + 4);
-        line(318, y + 4, 318, y - rowHeight + 4);
-        line(388, y + 4, 388, y - rowHeight + 4);
-        text(51, y - 10, 9, item.no);
-        nameLines.forEach((lineText, index) => text(82, y - 10 - (index * 11), 9, lineText));
-        text(264, y - 10, 9, item.qty);
-        text(324, y - 10, 9, item.satuan);
-        supplierLines.forEach((lineText, index) => text(394, y - 10 - (index * 11), 9, lineText));
+        dividers.forEach((x) => line(x, y + 4, x, y - rowHeight + 4));
+        text(48, y - 10, 8, item.no);
+        nameLines.forEach((lineText, index) => text(70, y - 10 - (index * 11), 8, lineText));
+        text(220, y - 10, 8, item.qty);
+        text(260, y - 10, 8, item.satuan);
+        text(316, y - 10, 8, formatCurrency(item.hargaSatuan).replace("Rp", "Rp "));
+        text(378, y - 10, 8, formatCurrency(item.totalHarga).replace("Rp", "Rp "));
+        supplierLines.forEach((lineText, index) => text(440, y - 10 - (index * 11), 8, lineText));
         y -= rowHeight;
       });
+
+      y -= 18;
+      text(374, y, 11, "Total PO", true);
+      text(456, y, 11, formatCurrency(orderTotal(items)).replace("Rp", "Rp "), true);
 
       if (y < 168) addPage();
       y = Math.min(y - 30, 150);
@@ -1636,20 +1964,23 @@
 
     function refresh() {
       renumberRows();
+      syncStockMode();
+      const items = getItems();
       renderMeta(getFormData());
-      renderPreview(getItems());
+      renderPriceSummary(items);
+      renderPreview(items);
       saveState();
     }
 
     document.querySelector("#addRowBtn").addEventListener("click", () => addRow());
     document.querySelector("#sampleBtn").addEventListener("click", () => {
       if (getItems().length || itemsBody.querySelector('[data-field="namaBarang"]')?.value) {
-        addRow({ namaBarang: "Vitamin ayam", qty: "1", satuan: "100 ML", supplier: "PT ANUGERAH PANJI MANDIRI" });
+        addRow({ namaBarang: "ANTI-HEATSTRESS", qty: "1", supplier: "TMC" });
       } else {
         itemsBody.innerHTML = "";
-        addRow({ namaBarang: "Vitamin ayam", qty: "1", satuan: "100 ML", supplier: "PT ANUGERAH PANJI MANDIRI" });
-        addRow({ namaBarang: "Obat ternak", qty: "3", satuan: "100 GR" });
-        addRow({ namaBarang: "Sabun kandang", qty: "2", satuan: "800 ML" });
+        addRow({ namaBarang: "ANTI-HEATSTRESS", qty: "1", supplier: "TMC" });
+        addRow({ namaBarang: "BENZAKLIN", qty: "2" });
+        addRow({ namaBarang: "KLORIN-GARD", qty: "1" });
       }
       showStatus("Contoh barang sudah ditambahkan.");
     });
