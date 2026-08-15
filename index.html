@@ -828,6 +828,7 @@
     let stockLevels = {};
     let stockRequestSeq = 0;
     let lastStockModeKey = "";
+    let lastSheetSubmitError = "";
     const adminSignatureJpeg = {
       width: 225,
       height: 205,
@@ -1698,25 +1699,41 @@
     }
 
     async function sendToSheets(payload) {
+      lastSheetSubmitError = "";
       if (!payload.form.unit) {
-        showStatus("Pilih unit/daerah dulu sebelum kirim ke Sheets.");
+        lastSheetSubmitError = "Pilih unit/daerah dulu sebelum kirim ke Sheets.";
+        showStatus(lastSheetSubmitError);
         return false;
       }
       if (!payload.items.length) {
-        showStatus("Isi minimal 1 barang dulu sebelum kirim ke Sheets.");
+        lastSheetSubmitError = "Isi minimal 1 barang dulu sebelum kirim ke Sheets.";
+        showStatus(lastSheetSubmitError);
         return false;
       }
       try {
-        await fetch(appsScriptUrl, {
+        const body = new URLSearchParams();
+        body.set("payload", JSON.stringify(payload));
+
+        const response = await fetch(appsScriptUrl, {
           method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload)
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body
         });
-        showStatus(`Data dikirim ke master Sheets untuk ${payload.form.unit}.`);
+        const result = await response.json();
+
+        if (!response.ok || !result.ok) {
+          throw new Error(result && result.message ? result.message : "Apps Script menolak submit.");
+        }
+        if (!Number(result.rows)) {
+          throw new Error("Apps Script menerima submit, tapi 0 baris masuk. Cek isi barang dan Code.gs buildDataRows_.");
+        }
+
+        showStatus(`Data masuk ke ${result.spreadsheetName || "Google Sheets"} / ${result.sheetName || payload.form.unit}: ${result.rows} baris.`);
         return true;
       } catch (error) {
-        showStatus("Gagal kirim ke Sheets. Cek koneksi atau setting Apps Script.");
+        lastSheetSubmitError = error.message || "cek koneksi atau setting Apps Script.";
+        console.error("Gagal kirim ke Sheets:", error);
+        showStatus(`Gagal kirim ke Sheets: ${lastSheetSubmitError}`);
         return false;
       }
     }
@@ -1942,7 +1959,7 @@
         if (sent) resetFormAfterSubmit();
         showStatus(sent
           ? "Submit selesai. Form sudah dikosongkan dan no PO berikutnya akan dibuat baru."
-          : "PDF dibuat, tapi data belum berhasil dikirim ke Sheets.");
+          : `PDF dibuat, tapi data belum berhasil dikirim ke Sheets. ${lastSheetSubmitError ? `Error: ${lastSheetSubmitError}` : ""}`);
       } finally {
         submitButton.disabled = false;
         submitButton.innerHTML = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg>Submit';
