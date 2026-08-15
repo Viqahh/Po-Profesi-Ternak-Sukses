@@ -810,20 +810,20 @@
       Masamba: "Masamba050"
     };
     const productCatalog = {
-      "ANTI-HEATSTRESS": { price: 27528, amount: 100, unit: "gram" },
-      "BENZAKLIN": { price: 49950, amount: 1, unit: "liter" },
-      "ERI-PLUS": { price: 63270, amount: 100, unit: "gram" },
-      "HEPAMUN": { price: 28749, amount: 100, unit: "gram" },
-      "Immunozinc": { price: 419580, amount: 1, unit: "kg" },
-      "Interflox Oral": { price: 416250, amount: 1000, unit: "ml" },
-      "Introvit 4+ WS": { price: 77700, amount: 100, unit: "gram" },
-      "Introvit-ES-100 Oral": { price: 449550, amount: 1000, unit: "ml" },
-      "KLORIN-GARD": { price: 291375, amount: 50, unit: "tablet" },
-      "NEO MONOXAN": { price: 44955, amount: 100, unit: "gram" },
-      "PARAGIN": { price: 29970, amount: 100, unit: "gram" },
-      "SPECTARAL": { price: 208125, amount: 1, unit: "liter" },
-      "TM-Vita": { price: 20868, amount: 100, unit: "gram" },
-      "TYLOQUIN": { price: 69930, amount: 100, unit: "gram" }
+      "ANTI-HEATSTRESS": { buyPrice: 27528, sellPrice: 42350, amount: 100, unit: "gram" },
+      "BENZAKLIN": { buyPrice: 49950, sellPrice: 76846, amount: 1, unit: "liter" },
+      "ERI-PLUS": { buyPrice: 63270, sellPrice: 97339, amount: 100, unit: "gram" },
+      "HEPAMUN": { buyPrice: 28749, sellPrice: 44229, amount: 100, unit: "gram" },
+      "Immunozinc": { buyPrice: 419580, sellPrice: 645508, amount: 1, unit: "kg" },
+      "Interflox Oral": { buyPrice: 416250, sellPrice: 640385, amount: 1000, unit: "ml" },
+      "Introvit 4+ WS": { buyPrice: 77700, sellPrice: 119539, amount: 100, unit: "gram" },
+      "Introvit-ES-100 Oral": { buyPrice: 449550, sellPrice: 691615, amount: 1000, unit: "ml" },
+      "KLORIN-GARD": { buyPrice: 291375, sellPrice: 448270, amount: 50, unit: "tablet" },
+      "NEO MONOXAN": { buyPrice: 44955, sellPrice: 69162, amount: 100, unit: "gram" },
+      "PARAGIN": { buyPrice: 29970, sellPrice: 46108, amount: 100, unit: "gram" },
+      "SPECTARAL": { buyPrice: 208125, sellPrice: 320193, amount: 1, unit: "liter" },
+      "TM-Vita": { buyPrice: 20868, sellPrice: 32105, amount: 100, unit: "gram" },
+      "TYLOQUIN": { buyPrice: 69930, sellPrice: 107585, amount: 100, unit: "gram" }
     };
     let stockLevels = {};
     let stockRequestSeq = 0;
@@ -1057,8 +1057,12 @@
       return productCatalog[productName] || null;
     }
 
-    function itemPrice(productName) {
-      return productInfo(productName)?.price || 0;
+    function itemBuyPrice(productName) {
+      return productInfo(productName)?.buyPrice || 0;
+    }
+
+    function itemSellPrice(productName) {
+      return productInfo(productName)?.sellPrice || 0;
     }
 
     function formatAmount(value) {
@@ -1144,8 +1148,12 @@
       if (modeKey) loadKendariStock();
     }
 
-    function orderTotal(items = getItems()) {
-      return items.reduce((sum, item) => sum + (Number(item.totalHarga) || 0), 0);
+    function orderTotalBuy(items = getItems()) {
+      return items.reduce((sum, item) => sum + (Number(item.totalHargaBeli) || 0), 0);
+    }
+
+    function orderTotalSell(items = getItems()) {
+      return items.reduce((sum, item) => sum + (Number(item.totalHargaJual) || 0), 0);
     }
 
     function generateKodeUnit(region) {
@@ -1317,8 +1325,10 @@
       const satuanUnit = normalizeSatuanUnit(read("satuanUnit"));
       const namaBarang = read("namaBarang");
       const qty = read("qty");
-      const hargaSatuan = itemPrice(namaBarang);
-      const totalHarga = parseDecimal(qty) * hargaSatuan;
+      const hargaBeli = itemBuyPrice(namaBarang);
+      const hargaJual = itemSellPrice(namaBarang);
+      const totalHargaBeli = parseDecimal(qty) * hargaBeli;
+      const totalHargaJual = parseDecimal(qty) * hargaJual;
       return {
         no: index + 1,
         namaBarang,
@@ -1326,10 +1336,18 @@
         satuanJumlah,
         satuanUnit,
         satuan: [satuanJumlah, satuanUnit].filter(Boolean).join(" "),
-        hargaSatuan,
-        hargaSatuanFormatted: formatCurrency(hargaSatuan),
-        totalHarga,
-        totalHargaFormatted: formatCurrency(totalHarga),
+        hargaSatuan: hargaBeli,
+        hargaSatuanFormatted: formatCurrency(hargaBeli),
+        totalHarga: totalHargaBeli,
+        totalHargaFormatted: formatCurrency(totalHargaBeli),
+        hargaBeli,
+        hargaBeliFormatted: formatCurrency(hargaBeli),
+        hargaJual,
+        hargaJualFormatted: formatCurrency(hargaJual),
+        totalHargaBeli,
+        totalHargaBeliFormatted: formatCurrency(totalHargaBeli),
+        totalHargaJual,
+        totalHargaJualFormatted: formatCurrency(totalHargaJual),
         supplier: read("supplier")
       };
     }
@@ -1450,7 +1468,7 @@
       if (!items.length) {
         priceSummary.innerHTML = `
           <div class="price-row">
-            <span>Harga dan total order muncul setelah barang dipilih.</span>
+            <span>Harga beli, harga jual, dan total order muncul setelah barang dipilih.</span>
             <strong>${formatCurrency(0)}</strong>
           </div>
         `;
@@ -1460,19 +1478,23 @@
       priceSummary.innerHTML = `
         ${items.map((item) => `
           <div class="price-row">
-            <span>${item.no}. ${escapeHtml(item.namaBarang || "Barang")} - ${escapeHtml(item.qty || "0")} x ${escapeHtml(item.hargaSatuanFormatted)}${isKendariPeternakMode() ? ` | stok ${escapeHtml(stockLabel(item.namaBarang))}` : ""}</span>
-            <strong>${escapeHtml(item.totalHargaFormatted)}</strong>
+            <span>${item.no}. ${escapeHtml(item.namaBarang || "Barang")} - ${escapeHtml(item.qty || "0")} x beli ${escapeHtml(item.hargaBeliFormatted)} / jual ${escapeHtml(item.hargaJualFormatted)}${isKendariPeternakMode() ? ` | stok ${escapeHtml(stockLabel(item.namaBarang))}` : ""}</span>
+            <strong>${escapeHtml(item.totalHargaBeliFormatted)} / ${escapeHtml(item.totalHargaJualFormatted)}</strong>
           </div>
         `).join("")}
         <div class="price-row total">
-          <span>Total PO</span>
-          <strong>${escapeHtml(formatCurrency(orderTotal(items)))}</strong>
+          <span>Total Harga Beli</span>
+          <strong>${escapeHtml(formatCurrency(orderTotalBuy(items)))}</strong>
+        </div>
+        <div class="price-row total">
+          <span>Total Harga Jual</span>
+          <strong>${escapeHtml(formatCurrency(orderTotalSell(items)))}</strong>
         </div>
       `;
     }
 
     function renderPreview(items) {
-      rowCountEl.textContent = `${items.length} baris barang | Total ${formatCurrency(orderTotal(items))}`;
+      rowCountEl.textContent = `${items.length} baris barang | Beli ${formatCurrency(orderTotalBuy(items))} | Jual ${formatCurrency(orderTotalSell(items))}`;
       if (!items.length) {
         previewWrap.innerHTML = '<div class="empty">Belum ada barang yang siap dibuat sheet.</div>';
         return;
@@ -1485,8 +1507,10 @@
               <th>Nama Barang</th>
               <th>Qty</th>
               <th>Satuan</th>
-              <th>Harga</th>
-              <th>Total</th>
+              <th>Harga Beli</th>
+              <th>Harga Jual</th>
+              <th>Total Beli</th>
+              <th>Total Jual</th>
               <th>Suplier</th>
             </tr>
           </thead>
@@ -1497,14 +1521,16 @@
                 <td>${escapeHtml(item.namaBarang)}</td>
                 <td>${escapeHtml(item.qty)}</td>
                 <td>${escapeHtml(item.satuan)}</td>
-                <td>${escapeHtml(item.hargaSatuanFormatted)}</td>
-                <td>${escapeHtml(item.totalHargaFormatted)}</td>
+                <td>${escapeHtml(item.hargaBeliFormatted)}</td>
+                <td>${escapeHtml(item.hargaJualFormatted)}</td>
+                <td>${escapeHtml(item.totalHargaBeliFormatted)}</td>
+                <td>${escapeHtml(item.totalHargaJualFormatted)}</td>
                 <td>${escapeHtml(item.supplier)}</td>
               </tr>
             `).join("")}
           </tbody>
         </table>
-        <div class="total-summary">Total PO: ${escapeHtml(formatCurrency(orderTotal(items)))}</div>
+        <div class="total-summary">Total Harga Beli: ${escapeHtml(formatCurrency(orderTotalBuy(items)))} | Total Harga Jual: ${escapeHtml(formatCurrency(orderTotalSell(items)))}</div>
       `;
     }
 
@@ -1525,19 +1551,22 @@
         ["Tgl PO", data.tglPo],
         ["Nama PPL", data.namaPpl],
         ["Admin", adminName],
-        ["Total PO", formatCurrency(orderTotal(items))],
+        ["Total Harga Beli", formatCurrency(orderTotalBuy(items))],
+        ["Total Harga Jual", formatCurrency(orderTotalSell(items))],
         ["Timestamp Submit", submitTimestamp],
         ["Download PDF", downloadStatus],
         ["Timestamp Download PDF", downloadTimestamp || "Belum"],
         [],
-        ["No", "Nama Barang", "Qty", "Satuan", "Harga", "Total", "Suplier"],
+        ["No", "Nama Barang", "Qty", "Satuan", "Harga Beli", "Harga Jual", "Total Beli", "Total Jual", "Suplier"],
         ...items.map((item) => [
           item.no,
           item.namaBarang,
           item.qty,
           item.satuan,
-          item.hargaSatuan,
-          item.totalHarga,
+          item.hargaBeli,
+          item.hargaJual,
+          item.totalHargaBeli,
+          item.totalHargaJual,
           item.supplier
         ])
       ];
@@ -1562,8 +1591,12 @@
           : "",
         form,
         items,
-        totalOrder: orderTotal(items),
-        totalOrderFormatted: formatCurrency(orderTotal(items)),
+        totalOrder: orderTotalBuy(items),
+        totalOrderFormatted: formatCurrency(orderTotalBuy(items)),
+        totalHargaBeli: orderTotalBuy(items),
+        totalHargaBeliFormatted: formatCurrency(orderTotalBuy(items)),
+        totalHargaJual: orderTotalSell(items),
+        totalHargaJualFormatted: formatCurrency(orderTotalSell(items)),
         rows: sheetRows({ submitTimestamp, downloadTimestamp, pdfDownloaded }),
         pplSignature: signatureSnapshot(),
         pdfDownloaded,
@@ -1644,9 +1677,9 @@
         return `Qty barang baris ${invalidQty.no} harus lebih dari 0.`;
       }
 
-      const missingPrice = rows.find((item) => hasItemContent(item) && !item.hargaSatuan);
+      const missingPrice = rows.find((item) => hasItemContent(item) && (!item.hargaBeli || !item.hargaJual));
       if (missingPrice) {
-        return `Harga barang baris ${missingPrice.no} belum tersedia. Pilih nama barang dari list.`;
+        return `Harga beli/jual barang baris ${missingPrice.no} belum tersedia. Pilih nama barang dari list.`;
       }
 
       if (isKendariPeternakMode(data)) {
@@ -1792,9 +1825,9 @@
       text(42, y, 11, "Daftar Barang", true);
       y -= 18;
 
-      const cols = [42, 66, 214, 254, 310, 372, 434, 553];
-      const dividers = [64, 214, 254, 310, 372, 434];
-      const headers = ["No", "Nama Barang", "Qty", "Satuan", "Harga", "Total", "Suplier"];
+      const cols = [42, 62, 184, 218, 272, 328, 384, 440, 496, 553];
+      const dividers = [60, 184, 218, 272, 328, 384, 440, 496];
+      const headers = ["No", "Nama Barang", "Qty", "Satuan", "Beli", "Jual", "Tot Beli", "Tot Jual", "Suplier"];
       rect(42, y - 16, 511, 20);
       headers.forEach((header, index) => text(cols[index] + 5, y - 10, 9, header, true));
       y -= 20;
@@ -1808,24 +1841,29 @@
           headers.forEach((header, index) => text(cols[index] + 5, y - 10, 9, header, true));
           y -= 20;
         }
-        const nameLines = wrapPdfText(item.namaBarang, 22);
-        const supplierLines = wrapPdfText(item.supplier, 14);
+        const nameLines = wrapPdfText(item.namaBarang, 18);
+        const supplierLines = wrapPdfText(item.supplier, 9);
         const rowHeight = Math.max(22, nameLines.length * 12, supplierLines.length * 12);
         rect(42, y - rowHeight + 4, 511, rowHeight);
         dividers.forEach((x) => line(x, y + 4, x, y - rowHeight + 4));
-        text(48, y - 10, 8, item.no);
-        nameLines.forEach((lineText, index) => text(70, y - 10 - (index * 11), 8, lineText));
-        text(220, y - 10, 8, item.qty);
-        text(260, y - 10, 8, item.satuan);
-        text(316, y - 10, 8, formatCurrency(item.hargaSatuan).replace("Rp", "Rp "));
-        text(378, y - 10, 8, formatCurrency(item.totalHarga).replace("Rp", "Rp "));
-        supplierLines.forEach((lineText, index) => text(440, y - 10 - (index * 11), 8, lineText));
+        text(47, y - 10, 7, item.no);
+        nameLines.forEach((lineText, index) => text(64, y - 10 - (index * 10), 7, lineText));
+        text(188, y - 10, 7, item.qty);
+        text(222, y - 10, 7, item.satuan);
+        text(276, y - 10, 7, formatCurrency(item.hargaBeli).replace("Rp", "Rp "));
+        text(332, y - 10, 7, formatCurrency(item.hargaJual).replace("Rp", "Rp "));
+        text(388, y - 10, 7, formatCurrency(item.totalHargaBeli).replace("Rp", "Rp "));
+        text(444, y - 10, 7, formatCurrency(item.totalHargaJual).replace("Rp", "Rp "));
+        supplierLines.forEach((lineText, index) => text(500, y - 10 - (index * 10), 7, lineText));
         y -= rowHeight;
       });
 
       y -= 18;
-      text(374, y, 11, "Total PO", true);
-      text(456, y, 11, formatCurrency(orderTotal(items)).replace("Rp", "Rp "), true);
+      text(300, y, 10, "Total Harga Beli", true);
+      text(420, y, 10, formatCurrency(orderTotalBuy(items)).replace("Rp", "Rp "), true);
+      y -= 14;
+      text(300, y, 10, "Total Harga Jual", true);
+      text(420, y, 10, formatCurrency(orderTotalSell(items)).replace("Rp", "Rp "), true);
 
       if (y < 168) addPage();
       y = Math.min(y - 30, 150);
