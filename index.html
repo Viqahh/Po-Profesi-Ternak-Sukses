@@ -826,6 +826,7 @@
       "TYLOQUIN": { buyPrice: 69930, sellPrice: 107585, amount: 100, unit: "gram" }
     };
     let stockLevels = {};
+    let stockLoaded = false;
     let stockRequestSeq = 0;
     let lastStockModeKey = "";
     let lastSheetSubmitError = "";
@@ -1088,8 +1089,15 @@
       const info = productInfo(productName);
       const stock = stockLevels[productName];
       if (!info) return "-";
-      if (!stock || typeof stock.amount !== "number") return "loading";
+      if (!stockLoaded) return "loading";
+      if (!stock || typeof stock.amount !== "number") return `0 ${info.unit}`;
       return `${formatAmount(stock.amount)} ${stock.unit || info.unit}`;
+    }
+
+    function availableStockAmount(productName) {
+      if (!stockLoaded) return null;
+      const stock = stockLevels[productName];
+      return stock && typeof stock.amount === "number" ? stock.amount : 0;
     }
 
     function refreshProductStockLabels() {
@@ -1113,6 +1121,7 @@
       window[callbackName] = (response) => {
         if (seq === stockRequestSeq) {
           stockLevels = response && response.ok && response.stock ? response.stock : {};
+          stockLoaded = true;
           refreshProductStockLabels();
           renderPriceSummary(getItems());
         }
@@ -1123,6 +1132,7 @@
       script.onerror = () => {
         if (seq === stockRequestSeq) {
           stockLevels = {};
+          stockLoaded = false;
           refreshProductStockLabels();
           renderPriceSummary(getItems());
           showStatus("Stok Kendari belum bisa dibaca. Cek Code.gs / koneksi.");
@@ -1145,6 +1155,7 @@
 
       lastStockModeKey = modeKey;
       stockLevels = {};
+      stockLoaded = !modeKey;
       refreshProductStockLabels();
       if (modeKey) loadKendariStock();
     }
@@ -1684,12 +1695,12 @@
       }
 
       if (isKendariPeternakMode(data)) {
-        const unknownStock = items.find((item) => !stockLevels[item.namaBarang] || typeof stockLevels[item.namaBarang].amount !== "number");
+        const unknownStock = items.find((item) => availableStockAmount(item.namaBarang) === null);
         if (unknownStock) {
           return `Stok ${unknownStock.namaBarang} belum terbaca. Tunggu sebentar atau refresh halaman.`;
         }
 
-        const overStock = items.find((item) => requestedStockAmount(item) > stockLevels[item.namaBarang].amount);
+        const overStock = items.find((item) => requestedStockAmount(item) > availableStockAmount(item.namaBarang));
         if (overStock) {
           return `Stok ${overStock.namaBarang} tidak cukup. Diminta ${formatAmount(requestedStockAmount(overStock))} ${overStock.satuanUnit}, sisa ${stockLabel(overStock.namaBarang)}.`;
         }
